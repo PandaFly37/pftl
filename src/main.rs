@@ -25,7 +25,7 @@ fn print_page(pftl: bool, msg: &str, options: &[&str]) -> String {
         println!("PandaFly_37's Todo\n");
     }
     println!("{}", msg);
-    println!("");
+    println!();
     for i in options {
         println!("> {}", i);
     }
@@ -70,5 +70,18 @@ fn main() {
             }
         }
     }
-
+    let mut next_option = 0;
+    loop {
+        if next_option == 0 {
+            let mut msg = String::from("TODO\n");
+            for i in 0usize..todos.len() {
+                msg.push_str((i + 1).to_string().as_str());
+                msg.push_str(" | ");
+                msg.push_str(todos[i].as_str());
+                msg.push_str("\n");
+            }
+            let op = print_page(true, &msg, &["[n] 新建TODO", "[v todo_id] 查看TODO", "[d todo_id] 完成TODO", "[e] 退出"]);
+            println!("{}", op);
+        }
+    }
 }
