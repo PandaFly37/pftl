@@ -44,21 +44,31 @@ fn print_page(pftl: bool, msg: &str, options: &[&str]) -> String {
 }
 
 fn main() {
-    let file = match fs::File::open("todo.txt") {
-        Ok(f) => f,
-        Err(e) => {
-            print_page(true, &format!("打开TODO文件时出错: {e}"), &["[any] 退出"]);
-            process::exit(1);
-        }
-    };
-    let reader = BufReader::new(file);
-    for i in reader.lines() {
-        match i {
-            Ok(i_text) => println!("{}", i_text),
+    let mut todos: Vec<String> = Vec::new();
+    {
+        println!("打开TODO文件…");
+        let file = match fs::File::open("todo.txt") {
+            Ok(f) => f,
             Err(e) => {
-                print_page(true, &format!("(test)输出TODO文件内容时出错: {e}"), &["[any] 退出"]);
+                print_page(true, &format!("打开TODO文件时出错: {e}"), &["[any] 退出"]);
                 process::exit(1);
+            }
+        };
+        println!("读取TODO文件…");
+        let reader = BufReader::new(file);
+        let mut now_line = 1;
+        for i in reader.lines() {
+            match i {
+                Ok(i_text) => {
+                    todos.push(i_text);
+                    now_line += 1;
+                },
+                Err(e) => {
+                    print_page(true, &format!("(test)读取TODO文件内容时出错.\n行数: {now_line}\n错误: {e}"), &["[Any] 退出"]);
+                    process::exit(1);
+                }
             }
         }
     }
+
 }
