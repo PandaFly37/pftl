@@ -16,6 +16,18 @@ fn clear_screen() {
     }
 }
 
+fn input_line() -> String {
+    let mut inp = String::new();
+    match stdin().read_line(&mut inp) {
+        Ok(_) => (),
+        Err(e) => {
+            println!("输入时发生错误: {}", e);
+            ()
+        }
+    };
+    inp
+}
+
 fn print_page(pftl: bool, msg: &str, options: &[&str]) -> String {
     clear_screen();
     // 打印内容
@@ -32,15 +44,7 @@ fn print_page(pftl: bool, msg: &str, options: &[&str]) -> String {
     print!("==========\n> ");
     // 输入
     stdout().flush().unwrap();
-    let mut inp = String::new();
-    match stdin().read_line(&mut inp) {
-        Ok(_) => (),
-        Err(e) => {
-            println!("输入时发生错误: {}", e);
-            ()
-        }
-    }
-    inp.trim().to_string()
+    input_line().trim().to_string()
 }
 
 fn main() {
@@ -70,18 +74,27 @@ fn main() {
             }
         }
     }
-    let mut next_option = 0;
+    let mut next_page = 'm';
+    let mut next_todo_id = 0;
     loop {
-        if next_option == 0 {
-            let mut msg = String::from("TODO\n");
-            for i in 0usize..todos.len() {
-                msg.push_str((i + 1).to_string().as_str());
-                msg.push_str(" | ");
-                msg.push_str(todos[i].as_str());
-                msg.push_str("\n");
+        match next_page {
+            'm' => {
+                let mut msg = String::from("TODO\n");
+                for i in 0usize..todos.len() {
+                    msg.push_str((i + 1).to_string().as_str());
+                    msg.push_str(" | ");
+                    msg.push_str(todos[i].as_str());
+                    msg.push_str("\n");
+                }
+                let op = print_page(true, &msg, &["[n] 新建TODO", "[v todo_id] 查看TODO", "[d todo_id] 完成TODO", "[e] 退出"]);
+                println!("{}", op);
+            },
+            _ => {
+                print!("无效页面.\n> ");
+                stdout().flush().unwrap();
+                let op = input_line().trim().to_string();
+                println!("{}", op);
             }
-            let op = print_page(true, &msg, &["[n] 新建TODO", "[v todo_id] 查看TODO", "[d todo_id] 完成TODO", "[e] 退出"]);
-            println!("{}", op);
         }
     }
 }
