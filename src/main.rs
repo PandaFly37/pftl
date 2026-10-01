@@ -5,6 +5,38 @@ use std::fs;
 use std::io::{BufRead, BufReader, Write, stdin, stdout};
 use std::process;
 
+fn parse_input(op: &str) -> Option<(char, Option<usize>)> {
+    let s = op.trim();
+    if s.is_empty() {
+        return None;
+    }
+
+    let parts = s.split_whitespace().collect::<Vec<_>>();
+    match parts.len() {
+        2 => {
+            if parts[0].len() != 1 {
+                None
+            } else {
+                Some((
+                    parts[0].chars().next().unwrap(),
+                    match parts[1].parse::<usize>() {
+                        Ok(n) => Some(n),
+                        Err(_) => return None,
+                    },
+                ))
+            }
+        }
+        1 => {
+            if parts[0].len() != 1 {
+                None
+            } else {
+                Some((parts[0].chars().next().unwrap(), None))
+            }
+        }
+        _ => None,
+    }
+}
+
 fn main() {
     let mut todos: Vec<String> = Vec::new();
     {
@@ -37,6 +69,12 @@ fn main() {
         }
     }
     let mut next_page = 'm';
+    // next_page
+    // m 主页
+    // n 新建
+    // d 确认删除
+    // v 详情
+    // u 确认设为未完成
     let mut next_todo_id = 0;
     loop {
         match next_page {
@@ -58,7 +96,8 @@ fn main() {
                         "[e] 退出",
                     ],
                 );
-                println!("{}", op);
+                let parsed_op = parse_input(&op);
+                println!("{:?}", parsed_op);
             }
             _ => {
                 print!("无效页面.\n> ");
