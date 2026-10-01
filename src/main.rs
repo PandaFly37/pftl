@@ -72,7 +72,7 @@ fn main() {
     // next_page
     // m 主页
     // n 新建
-    // d 确认删除
+    // r 确认删除
     // v 详情
     // u 确认设为未完成
     let mut next_todo_id = 0;
@@ -129,9 +129,29 @@ fn main() {
                     _ => next_page = 'm',
                 }
             }
-            'd' => next_page = 'm', // 预留
-            'v' => next_page = 'm', // 预留
-            'u' => next_page = 'm', // 预留
+            'r' => next_page = 'm', // WIP
+            'v' => {
+                let todo_idx = next_todo_id - 1;
+                if todo_idx < todos.len() {
+                    let todo_name = &todos[todo_idx];
+                    let op = print_page(
+                        false,
+                        &format!("TODO {next_todo_id}\n{todo_name}"),
+                        &["[b] 返回主页", "[d] 完成", "[r] 删除"],
+                    );
+                    let parsed_op = parse_input(&op);
+                    match parsed_op {
+                        Some(('b', _)) => next_page = 'm',
+                        Some(('d', _)) => (), // WIP
+                        Some(('r', _)) => next_page = 'r',
+                        _ => (),
+                    }
+                } else {
+                    print_page(false, "todo_id无效.", &["[b] 返回主页"]);
+                    next_page = 'm';
+                };
+            }
+            'u' => next_page = 'm', // WIP
             _ => {
                 print!("无效页面.\n> ");
                 stdout().flush().unwrap();
