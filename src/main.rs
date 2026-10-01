@@ -1,9 +1,15 @@
 mod io_util;
 
 use io_util::*;
-use std::fs;
-use std::io::{BufRead, BufReader, Write, stdout};
+use serde::{Deserialize, Serialize};
+use std::io::{Write, stdout};
 use std::process;
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Todo {
+    name: String,
+    done: bool,
+}
 
 fn parse_input(op: &str) -> Option<(char, Option<usize>)> {
     let s = op.trim();
@@ -38,36 +44,7 @@ fn parse_input(op: &str) -> Option<(char, Option<usize>)> {
 }
 
 fn main() {
-    let mut todos: Vec<String> = Vec::new();
-    {
-        println!("打开TODO文件…");
-        let file = match fs::File::open("todo.txt") {
-            Ok(f) => f,
-            Err(e) => {
-                print_page(true, &format!("打开TODO文件时出错: {e}"), &["[any] 退出"]);
-                process::exit(1);
-            }
-        };
-        println!("读取TODO文件…");
-        let reader = BufReader::new(file);
-        let mut now_line = 1;
-        for i in reader.lines() {
-            match i {
-                Ok(i_text) => {
-                    todos.push(i_text);
-                    now_line += 1;
-                }
-                Err(e) => {
-                    print_page(
-                        true,
-                        &format!("(test)读取TODO文件内容时出错.\n行数: {now_line}\n错误: {e}"),
-                        &["[Any] 退出"],
-                    );
-                    process::exit(1);
-                }
-            }
-        }
-    }
+    let mut todos = load_todos();
     let mut next_page = 'm';
     // next_page
     // m 主页
@@ -83,7 +60,7 @@ fn main() {
                 for i in 0usize..todos.len() {
                     msg.push_str((i + 1).to_string().as_str());
                     msg.push_str(" | ");
-                    msg.push_str(todos[i].as_str());
+                    msg.push_str(todos[i].name.as_str());
                     msg.push_str("\n");
                 }
                 let op = print_page(
@@ -107,13 +84,19 @@ fn main() {
                         next_page = 'd';
                         next_todo_id = id;
                     }
-                    Some(('e', _)) => process::exit(0),
+                    Some(('e', _)) => {
+                        save_todos(&todos);
+                        process::exit(0)
+                    }
                     _ => (),
                 }
             }
             'n' => {
                 let new_todo_name = print_page(false, "新建TODO", &["输入TODO名称"]);
-                todos.push(new_todo_name.clone());
+                todos.push(Todo {
+                    name: new_todo_name.clone(),
+                    done: false,
+                });
                 let op = print_page(
                     false,
                     &format!("创建TODO\"{new_todo_name}\"成功."),
@@ -133,7 +116,7 @@ fn main() {
             'v' => {
                 let todo_idx = next_todo_id - 1;
                 if todo_idx < todos.len() {
-                    let todo_name = &todos[todo_idx];
+                    let todo_name = &todos[todo_idx].name;
                     let op = print_page(
                         false,
                         &format!("TODO {next_todo_id}\n{todo_name}"),
@@ -153,7 +136,7 @@ fn main() {
             }
             'u' => next_page = 'm', // WIP
             _ => {
-                print!("无效页面.\n> ");
+                eprint!("无效页面.\n> ");
                 stdout().flush().unwrap();
                 let op = input_line().trim().to_string();
                 println!("{}", op);
