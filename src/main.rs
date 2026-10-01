@@ -2,7 +2,7 @@ mod io_util;
 
 use io_util::*;
 use std::fs;
-use std::io::{BufRead, BufReader, Write, stdin, stdout};
+use std::io::{BufRead, BufReader, Write, stdout};
 use std::process;
 
 fn parse_input(op: &str) -> Option<(char, Option<usize>)> {
@@ -111,6 +111,27 @@ fn main() {
                     _ => (),
                 }
             }
+            'n' => {
+                let new_todo_name = print_page(false, "新建TODO", &["输入TODO名称"]);
+                todos.push(new_todo_name.clone());
+                let op = print_page(
+                    false,
+                    &format!("创建TODO\"{new_todo_name}\"成功."),
+                    &["[b] 返回主页", "[v] 查看详情"],
+                );
+                let parsed_op = parse_input(&op);
+                match parsed_op {
+                    Some(('b', _)) => next_page = 'm',
+                    Some(('v', _)) => {
+                        next_page = 'v';
+                        next_todo_id = todos.len();
+                    }
+                    _ => next_page = 'm',
+                }
+            }
+            'd' => next_page = 'm', // 预留
+            'v' => next_page = 'm', // 预留
+            'u' => next_page = 'm', // 预留
             _ => {
                 print!("无效页面.\n> ");
                 stdout().flush().unwrap();
