@@ -97,7 +97,19 @@ fn main() {
                     ],
                 );
                 let parsed_op = parse_input(&op);
-                println!("{:?}", parsed_op);
+                match parsed_op {
+                    Some(('n', _)) => next_page = 'n',
+                    Some(('v', Some(id))) => {
+                        next_page = 'v';
+                        next_todo_id = id;
+                    }
+                    Some(('d', Some(id))) => {
+                        next_page = 'd';
+                        next_todo_id = id;
+                    }
+                    Some(('e', _)) => process::exit(0),
+                    _ => (),
+                }
             }
             _ => {
                 print!("无效页面.\n> ");
