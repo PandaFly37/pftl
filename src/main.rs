@@ -82,8 +82,10 @@ fn main() {
                         next_todo_id = id;
                     }
                     Some(('d', Some(id))) => {
-                        next_page = 'd';
-                        next_todo_id = id;
+                        let todo_idx = id - 1;
+                        if todo_idx < todos.len() {
+                            todos[todo_idx].done = true;
+                        }
                     }
                     Some(('e', _)) => {
                         save_todos(&todos);
