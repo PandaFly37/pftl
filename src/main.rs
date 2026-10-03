@@ -95,24 +95,30 @@ fn main() {
                 }
             }
             'n' => {
-                let new_todo_name = print_page(false, "新建TODO", &["输入TODO名称"]);
-                todos.push(Todo {
-                    name: new_todo_name.clone(),
-                    done: false,
-                });
-                let op = print_page(
-                    false,
-                    &format!("创建TODO\"{new_todo_name}\"成功."),
-                    &["[b] 返回主页", "[v] 查看详情"],
-                );
-                let parsed_op = parse_input(&op);
-                match parsed_op {
-                    Some(('b', _)) => next_page = 'm',
-                    Some(('v', _)) => {
-                        next_page = 'v';
-                        next_todo_id = todos.len();
+                let new_todo_name =
+                    print_page(false, "新建TODO\n注意: TODO名不能为空", &["输入TODO名称"]);
+                if new_todo_name.len() == 0 {
+                    print_page(false, "TODO名不能为空.", &["[b] 返回主页"]);
+                    next_page = 'm';
+                } else {
+                    todos.push(Todo {
+                        name: new_todo_name.clone(),
+                        done: false,
+                    });
+                    let op = print_page(
+                        false,
+                        &format!("创建TODO\"{new_todo_name}\"成功."),
+                        &["[b] 返回主页", "[v] 查看详情"],
+                    );
+                    let parsed_op = parse_input(&op);
+                    match parsed_op {
+                        Some(('b', _)) => next_page = 'm',
+                        Some(('v', _)) => {
+                            next_page = 'v';
+                            next_todo_id = todos.len();
+                        }
+                        _ => next_page = 'm',
                     }
-                    _ => next_page = 'm',
                 }
             }
             'r' => next_page = 'm', // WIP
