@@ -121,7 +121,26 @@ fn main() {
                     }
                 }
             }
-            'r' => next_page = 'm', // WIP
+            'r' => {
+                let todo_idx = next_todo_id - 1;
+                if todo_idx < todos.len() {
+                    let todo_name = &todos[todo_idx].name;
+                    match parse_input(&print_page(
+                        false,
+                        &format!("确定要删除TODO\"{todo_name}\"吗?\n此操作不可撤销!"),
+                        &["[y] 是", "[n] 否"],
+                    )) {
+                        Some(('y', _)) => {
+                            todos.remove(todo_idx);
+                            next_page = 'm';
+                        }
+                        _ => next_page = 'v',
+                    }
+                } else {
+                    print_page(false, "todo_id无效.", &["[b] 返回主页"]);
+                    next_page = 'm';
+                };
+            }
             'v' => {
                 let todo_idx = next_todo_id - 1;
                 if todo_idx < todos.len() {
