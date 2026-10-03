@@ -50,14 +50,10 @@ pub fn input_line() -> String {
     inp
 }
 
-pub fn print_page(pftl: bool, msg: &str, options: &[&str]) -> String {
+pub fn print_page(msg: &str, options: &[&str]) -> String {
     clear_screen();
     // 打印内容
-    if pftl {
-        println!("PandaFly_37's Todo List\n");
-    } else {
-        println!("PandaFly_37's Todo\n");
-    }
+    println!("PandaFly_37's Todo List (v0.0.1)\n");
     println!("{}", msg);
     println!();
     for i in options {

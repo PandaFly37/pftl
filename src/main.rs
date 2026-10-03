@@ -65,7 +65,6 @@ fn main() {
                     msg.push_str("\n");
                 }
                 let op = print_page(
-                    true,
                     &msg,
                     &[
                         "[n] 新建TODO",
@@ -95,10 +94,9 @@ fn main() {
                 }
             }
             'n' => {
-                let new_todo_name =
-                    print_page(false, "新建TODO\n注意: TODO名不能为空", &["输入TODO名称"]);
+                let new_todo_name = print_page("新建TODO\n注意: TODO名不能为空", &["输入TODO名称"]);
                 if new_todo_name.len() == 0 {
-                    print_page(false, "TODO名不能为空.", &["[b] 返回主页"]);
+                    print_page("TODO名不能为空.", &["[b] 返回主页"]);
                     next_page = 'm';
                 } else {
                     todos.push(Todo {
@@ -106,7 +104,6 @@ fn main() {
                         done: false,
                     });
                     let op = print_page(
-                        false,
                         &format!("创建TODO\"{new_todo_name}\"成功."),
                         &["[b] 返回主页", "[v] 查看详情"],
                     );
@@ -126,7 +123,6 @@ fn main() {
                 if todo_idx < todos.len() {
                     let todo_name = &todos[todo_idx].name;
                     match parse_input(&print_page(
-                        false,
                         &format!("确定要删除TODO\"{todo_name}\"吗?\n此操作不可撤销!"),
                         &["[y] 是", "[n] 否"],
                     )) {
@@ -137,7 +133,7 @@ fn main() {
                         _ => next_page = 'v',
                     }
                 } else {
-                    print_page(false, "todo_id无效.", &["[b] 返回主页"]);
+                    print_page("todo_id无效.", &["[b] 返回主页"]);
                     next_page = 'm';
                 };
             }
@@ -151,7 +147,6 @@ fn main() {
                         ""
                     };
                     let op = print_page(
-                        false,
                         &format!("TODO {next_todo_id}{todo_done_tag}\n{todo_name}"),
                         &[
                             "[b] 返回主页",
@@ -172,7 +167,7 @@ fn main() {
                         _ => (),
                     }
                 } else {
-                    print_page(false, "todo_id无效.", &["[b] 返回主页"]);
+                    print_page("todo_id无效.", &["[b] 返回主页"]);
                     next_page = 'm';
                 };
             }
@@ -180,11 +175,10 @@ fn main() {
                 let todo_idx = next_todo_id - 1;
                 if todo_idx < todos.len() {
                     if !todos[todo_idx].done {
-                        print_page(false, "该TODO尚未完成.", &["[b] 返回详情页"]);
+                        print_page("该TODO尚未完成.", &["[b] 返回详情页"]);
                     } else {
                         let todo_name = &todos[todo_idx].name;
                         match parse_input(&print_page(
-                            false,
                             &format!("确定要设置TODO\"{todo_name}\"为未完成吗?"),
                             &["[y] 是", "[n] 否"],
                         )) {
@@ -194,7 +188,7 @@ fn main() {
                     }
                     next_page = 'v'
                 } else {
-                    print_page(false, "todo_id无效.", &["[b] 返回主页"]);
+                    print_page("todo_id无效.", &["[b] 返回主页"]);
                     next_page = 'm';
                 };
             }
