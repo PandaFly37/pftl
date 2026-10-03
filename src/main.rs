@@ -148,6 +148,7 @@ fn main() {
                     match parsed_op {
                         Some(('b', _)) => next_page = 'm',
                         Some(('d', _)) => todos[todo_idx].done = true,
+                        Some(('u', _)) => next_page = 'u',
                         Some(('r', _)) => next_page = 'r',
                         _ => (),
                     }
@@ -156,7 +157,28 @@ fn main() {
                     next_page = 'm';
                 };
             }
-            'u' => next_page = 'm', // WIP
+            'u' => {
+                let todo_idx = next_todo_id - 1;
+                if todo_idx < todos.len() {
+                    if !todos[todo_idx].done {
+                        print_page(false, "该TODO尚未完成.", &["[b] 返回详情页"]);
+                    } else {
+                        let todo_name = &todos[todo_idx].name;
+                        match parse_input(&print_page(
+                            false,
+                            &format!("确定要设置TODO\"{todo_name}\"为未完成吗?"),
+                            &["[y] 是", "[n] 否"],
+                        )) {
+                            Some(('y', _)) => todos[todo_idx].done = false,
+                            _ => (),
+                        }
+                    }
+                    next_page = 'v'
+                } else {
+                    print_page(false, "todo_id无效.", &["[b] 返回主页"]);
+                    next_page = 'm';
+                };
+            }
             _ => {
                 eprint!("无效页面.\n> ");
                 stdout().flush().unwrap();
