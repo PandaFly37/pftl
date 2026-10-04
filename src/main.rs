@@ -195,8 +195,8 @@ fn main() {
             _ => {
                 eprint!("无效页面.\n> ");
                 stdout().flush().unwrap();
-                let op = input_line().trim().to_string();
-                println!("{}", op);
+                input_line();
+                next_page = 'm';
             }
         }
     }
