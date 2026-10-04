@@ -2,13 +2,20 @@ mod io_util;
 
 use io_util::*;
 use serde::{Deserialize, Serialize};
-use std::io::{Write, stdout};
 use std::process;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Todo {
     name: String,
     done: bool,
+}
+
+enum Page {
+    Main,
+    New,
+    Remove(usize),
+    View(usize),
+    Undone(usize),
 }
 
 fn parse_input(op: &str) -> Option<(char, Option<usize>)> {
@@ -45,17 +52,10 @@ fn parse_input(op: &str) -> Option<(char, Option<usize>)> {
 
 fn main() {
     let mut todos = load_todos();
-    let mut next_page = 'm';
-    // next_page
-    // m 主页
-    // n 新建
-    // r 确认删除
-    // v 详情
-    // u 确认设为未完成
-    let mut next_todo_id = 0;
+    let mut next_page = Page::Main;
     loop {
         match next_page {
-            'm' => {
+            Page::Main => {
                 let mut msg = String::from("TODO\n");
                 for i in 0usize..todos.len() {
                     msg.push_str((i + 1).to_string().as_str());
@@ -75,11 +75,8 @@ fn main() {
                 );
                 let parsed_op = parse_input(&op);
                 match parsed_op {
-                    Some(('n', _)) => next_page = 'n',
-                    Some(('v', Some(id))) => {
-                        next_page = 'v';
-                        next_todo_id = id;
-                    }
+                    Some(('n', _)) => next_page = Page::New,
+                    Some(('v', Some(id))) => next_page = Page::View(id),
                     Some(('d', Some(id))) => {
                         let todo_idx = id - 1;
                         if todo_idx < todos.len() {
@@ -96,11 +93,11 @@ fn main() {
                     _ => (),
                 }
             }
-            'n' => {
+            Page::New => {
                 let new_todo_name = print_page("新建TODO\n注意: TODO名不能为空", &["输入TODO名称"]);
                 if new_todo_name.len() == 0 {
                     print_page("TODO名不能为空.", &["[b] 返回主页"]);
-                    next_page = 'm';
+                    next_page = Page::Main;
                 } else {
                     todos.push(Todo {
                         name: new_todo_name.clone(),
@@ -113,16 +110,13 @@ fn main() {
                     );
                     let parsed_op = parse_input(&op);
                     match parsed_op {
-                        Some(('b', _)) => next_page = 'm',
-                        Some(('v', _)) => {
-                            next_page = 'v';
-                            next_todo_id = todos.len();
-                        }
-                        _ => next_page = 'm',
+                        Some(('b', _)) => next_page = Page::Main,
+                        Some(('v', _)) => next_page = Page::View(todos.len()),
+                        _ => next_page = Page::Main,
                     }
                 }
             }
-            'r' => {
+            Page::Remove(next_todo_id) => {
                 let todo_idx = next_todo_id - 1;
                 if todo_idx < todos.len() {
                     let todo_name = &todos[todo_idx].name;
@@ -133,16 +127,16 @@ fn main() {
                         Some(('y', _)) => {
                             todos.remove(todo_idx);
                             save_todos(&todos);
-                            next_page = 'm';
+                            next_page = Page::Main;
                         }
-                        _ => next_page = 'v',
+                        _ => next_page = Page::View(next_todo_id),
                     }
                 } else {
                     print_page("todo_id无效.", &["[b] 返回主页"]);
-                    next_page = 'm';
+                    next_page = Page::Main;
                 };
             }
-            'v' => {
+            Page::View(next_todo_id) => {
                 let todo_idx = next_todo_id - 1;
                 if todo_idx < todos.len() {
                     let todo_name = &todos[todo_idx].name;
@@ -165,21 +159,21 @@ fn main() {
                     );
                     let parsed_op = parse_input(&op);
                     match parsed_op {
-                        Some(('b', _)) => next_page = 'm',
+                        Some(('b', _)) => next_page = Page::Main,
                         Some(('d', _)) => {
                             todos[todo_idx].done = true;
                             save_todos(&todos);
                         }
-                        Some(('u', _)) => next_page = 'u',
-                        Some(('r', _)) => next_page = 'r',
+                        Some(('u', _)) => next_page = Page::Undone(next_todo_id),
+                        Some(('r', _)) => next_page = Page::Remove(next_todo_id),
                         _ => (),
                     }
                 } else {
                     print_page("todo_id无效.", &["[b] 返回主页"]);
-                    next_page = 'm';
+                    next_page = Page::Main;
                 };
             }
-            'u' => {
+            Page::Undone(next_todo_id) => {
                 let todo_idx = next_todo_id - 1;
                 if todo_idx < todos.len() {
                     if !todos[todo_idx].done {
@@ -197,17 +191,11 @@ fn main() {
                             _ => (),
                         }
                     }
-                    next_page = 'v'
+                    next_page = Page::View(next_todo_id);
                 } else {
                     print_page("todo_id无效.", &["[b] 返回主页"]);
-                    next_page = 'm';
+                    next_page = Page::Main;
                 };
-            }
-            _ => {
-                eprint!("无效页面.\n> ");
-                stdout().flush().unwrap();
-                input_line();
-                next_page = 'm';
             }
         }
     }
