@@ -84,11 +84,12 @@ fn main() {
                         let todo_idx = id - 1;
                         if todo_idx < todos.len() {
                             todos[todo_idx].done = true;
+                            save_todos(&todos);
                         }
                     }
                     Some(('e', _)) => {
                         save_todos(&todos);
-                        process::exit(0)
+                        process::exit(0);
                     }
                     _ => (),
                 }
@@ -103,6 +104,7 @@ fn main() {
                         name: new_todo_name.clone(),
                         done: false,
                     });
+                    save_todos(&todos);
                     let op = print_page(
                         &format!("创建TODO\"{new_todo_name}\"成功."),
                         &["[b] 返回主页", "[v] 查看详情"],
@@ -128,6 +130,7 @@ fn main() {
                     )) {
                         Some(('y', _)) => {
                             todos.remove(todo_idx);
+                            save_todos(&todos);
                             next_page = 'm';
                         }
                         _ => next_page = 'v',
@@ -161,7 +164,10 @@ fn main() {
                     let parsed_op = parse_input(&op);
                     match parsed_op {
                         Some(('b', _)) => next_page = 'm',
-                        Some(('d', _)) => todos[todo_idx].done = true,
+                        Some(('d', _)) => {
+                            todos[todo_idx].done = true;
+                            save_todos(&todos);
+                        }
                         Some(('u', _)) => next_page = 'u',
                         Some(('r', _)) => next_page = 'r',
                         _ => (),
@@ -182,7 +188,10 @@ fn main() {
                             &format!("确定要设置TODO\"{todo_name}\"为未完成吗?"),
                             &["[y] 是", "[n] 否"],
                         )) {
-                            Some(('y', _)) => todos[todo_idx].done = false,
+                            Some(('y', _)) => {
+                                todos[todo_idx].done = false;
+                                save_todos(&todos);
+                            }
                             _ => (),
                         }
                     }
