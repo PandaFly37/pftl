@@ -85,6 +85,8 @@ fn main() {
                         if todo_idx < todos.len() {
                             todos[todo_idx].done = true;
                             save_todos(&todos);
+                        } else {
+                            print_page("todo_id无效.", &["[b] 返回主页"]);
                         }
                     }
                     Some(('e', _)) => {
