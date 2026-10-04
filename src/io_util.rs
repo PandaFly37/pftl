@@ -53,7 +53,7 @@ pub fn input_line() -> String {
 pub fn print_page(msg: &str, options: &[&str]) -> String {
     clear_screen();
     // 打印内容
-    println!("PandaFly_37's Todo List (v0.0.1)\n");
+    println!("PandaFly_37's Todo List (v0.1.0)\n");
     println!("{}", msg);
     println!();
     for i in options {
