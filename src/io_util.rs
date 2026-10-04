@@ -28,7 +28,7 @@ pub fn save_todos(todos: &[Todo]) {
 }
 
 pub fn clear_screen() {
-    match execute!(stdout(), Clear(ClearType::All), cursor::MoveTo(0, 1)) {
+    match execute!(stdout(), Clear(ClearType::All), cursor::MoveTo(0, 0)) {
         Ok(_) => (),
         Err(_) => {
             for _ in 0..20 {
