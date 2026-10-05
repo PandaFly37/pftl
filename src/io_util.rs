@@ -8,15 +8,25 @@ use std::{
     io::{Write, stdin, stdout},
 };
 
-pub fn load_todos() -> Vec<Todo> {
+pub fn load_todos() -> (Vec<Todo>, i32) {
     match fs::read_to_string("todos.json") {
-        Ok(content) => serde_json::from_str(&content).unwrap_or_default(),
+        Ok(content) => {
+            let todos = serde_json::from_str(&content).unwrap_or_default();
+            let mut todo_cnt = 0;
+            for todo in &todos {
+                let td: &Todo = todo;
+                if td.id > todo_cnt {
+                    todo_cnt = todo.id;
+                }
+            }
+            (todos, todo_cnt)
+        }
         Err(e) => {
             if e.kind() == std::io::ErrorKind::NotFound {
-                Vec::new()
+                (Vec::new(), 0)
             } else {
                 eprintln!("读取文件失败：{}", e);
-                Vec::new()
+                (Vec::new(), 0)
             }
         }
     }

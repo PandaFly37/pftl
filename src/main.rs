@@ -6,6 +6,7 @@ use std::process;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Todo {
+    id: i32,
     name: String,
     done: bool,
 }
@@ -51,7 +52,9 @@ fn parse_input(op: &str) -> Option<(char, Option<usize>)> {
 }
 
 fn main() {
-    let mut todos = load_todos();
+    let todos_read = load_todos();
+    let mut todos = todos_read.0;
+    let mut todo_cnt = todos_read.1;
     let mut next_page = Page::Main;
     loop {
         match next_page {
@@ -100,9 +103,11 @@ fn main() {
                     next_page = Page::Main;
                 } else {
                     todos.push(Todo {
+                        id: todo_cnt + 1,
                         name: new_todo_name.clone(),
                         done: false,
                     });
+                    todo_cnt += 1;
                     save_todos(&todos);
                     let op = print_page(
                         &format!("创建TODO\"{new_todo_name}\"成功."),
