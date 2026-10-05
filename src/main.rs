@@ -61,7 +61,7 @@ fn main() {
             Page::Main => {
                 let mut msg = String::from("TODO\n");
                 for i in 0usize..todos.len() {
-                    msg.push_str((i + 1).to_string().as_str());
+                    msg.push_str(todos[i].id.to_string().as_str());
                     msg.push_str(if todos[i].done { " - 已完成" } else { "" });
                     msg.push_str(" | ");
                     msg.push_str(todos[i].name.as_str());
@@ -144,6 +144,7 @@ fn main() {
             Page::View(next_todo_id) => {
                 let todo_idx = next_todo_id - 1;
                 if todo_idx < todos.len() {
+                    let next_todo_id2 = todos[todo_idx].id;
                     let todo_name = &todos[todo_idx].name;
                     let todo_done_tag = if todos[todo_idx].done {
                         " - 已完成"
@@ -151,7 +152,7 @@ fn main() {
                         ""
                     };
                     let op = print_page(
-                        &format!("TODO {next_todo_id}{todo_done_tag}\n{todo_name}"),
+                        &format!("TODO {next_todo_id2}{todo_done_tag}\n{todo_name}"),
                         &[
                             "[b] 返回主页",
                             if todos[todo_idx].done {
